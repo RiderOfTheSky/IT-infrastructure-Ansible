@@ -1,1 +1,2 @@
-
+ansible all -m ping  //ping 'all' hosts on the inventory file
+ansible <"hosts"> -m shell -a 'ps -ef' //show process list ansible 

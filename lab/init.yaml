@@ -1,0 +1,42 @@
+---
+- name: First try
+  hosts: web
+  remote_user: skyrider
+  become: yes
+  tasks:
+   - ping:
+
+   - openssh_keypair:
+       path: /tmp/id_ssh_rsa
+
+   - name: disable sudo pass
+     copy:
+       dest: /etc/sudoers.d/user
+       content: "skyrider      ALL = NOPASSWD: ALL"
+
+   - name: create group sysadmins
+     group:
+       name: sysadmins  
+
+#  - name: add teacher 1
+#    user:
+#      name: Roman Kuchin
+#      append: yes
+#      groups: sysadmins
+#      generate_ssh_key: yes
+
+
+#  - name: add teacher 2
+#    user:
+#      name: Yuri Hudolejev
+#      append: yes
+#      groups: sysadmins
+#      generate_ssh_key: yes
+
+   - name: add process list in var
+     command: "netstat -ntpl"
+     register: asd
+
+   - name: show proc list
+     debug:
+       var: asd.stdout_lines

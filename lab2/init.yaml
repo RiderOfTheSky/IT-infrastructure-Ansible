@@ -6,9 +6,6 @@
   tasks:
    - ping:
 
-   - openssh_keypair:
-       path: /tmp/id_ssh_rsa
-
    - name: disable sudo pass
      copy:
        dest: /etc/sudoers.d/user
@@ -18,20 +15,27 @@
      group:
        name: sysadmins  
 
-#  - name: add teacher 1
-#    user:
-#      name: Roman Kuchin
-#      append: yes
-#      groups: sysadmins
-#      generate_ssh_key: yes
+   - name: add teacher 1
+     user:
+       name: Roman_Kuchin
+       append: yes
+       groups: sysadmins
 
+   - name: add teacher 2
+     user:
+       name: Yuri_Hudolejev
+       append: yes
+       groups: sysadmins
 
-#  - name: add teacher 2
-#    user:
-#      name: Yuri Hudolejev
-#      append: yes
-#      groups: sysadmins
-#      generate_ssh_key: yes
+   - name: place ssh keys teacher 1
+     authorized_key:
+       user: Roman_Kuchin
+       key: https://github.com/romankuchin.keys
+
+   - name: place ssh keys teacher 2
+     authorized_key:
+       user: Yuri_Hudolejev
+       key: https://github.com/hudolejev.keys
 
    - name: add process list in var
      command: "netstat -ntpl"

@@ -1,0 +1,47 @@
+---
+- hosts: apache
+  remote_user: skyrider
+  become: yes
+  tasks:
+    - name: install apache2
+      apt:
+        name: apache2
+        state: latest
+        force_apt_get: yes
+
+    - name: install PHP
+      action: yum name=php update_cache=yes state=latest force_apt_get=yes
+
+    - name: apache listen on port 8080
+      lineinfile:
+          dest: /etc/apache2/ports.conf
+          insertafter: 'Listen 80' 
+          line: "Listen 8080" 
+          state: present
+
+    - name: Create directory for php
+      file:
+        path: /var/www/php
+        state: directory
+
+
+    - name: add php file to created directory
+      copy:
+        src: /etc/ansible/index.php
+        dest: /var/www/php
+
+    - name: add reaction for port 8080
+      blockinfile:
+          path: /etc/apache2/sites-available/000-default.conf
+          insertafter: '</VirtualHost>'  
+          state: present
+          block: |
+            <VirtualHost *:8080>
+
+                    ServerAdmin webmaster@localhost
+                    DocumentRoot /var/www/php
+
+            </VirtualHost>   
+
+    - name: restart apache2
+      service: name=apache2 state=restarted 

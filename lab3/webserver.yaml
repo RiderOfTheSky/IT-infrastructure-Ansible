@@ -24,11 +24,13 @@
         path: /var/www/php
         state: directory
 
-
-    - name: add php file to created directory
+    - name: Create php file
       copy:
-        src: /etc/ansible/index.php
-        dest: /var/www/php
+        dest: /var/www/php/index.php
+        content: |
+          <?php
+          phpinfo();
+          ?>
 
     - name: add reaction for port 8080
       blockinfile:

@@ -1,0 +1,63 @@
+---
+- hosts: apache
+  remote_user: skyrider
+  become: yes
+  tasks:
+    - name: install apache2
+      apt:
+        name: apache2
+        state: latest
+        force_apt_get: yes
+
+    - name: install PHP module for apache
+      apt: 
+        name: libapache2-mod-php  
+        state: latest 
+        force_apt_get: yes
+
+    - name: install PHP module for MySQL
+      apt:
+        name: php7.2-mysql
+        force_apt_get: yes
+        state: latest
+
+    - name: Download Wordpress
+      get_url:
+        url: https://wordpress.org/latest.tar.gz
+        dest: /tmp/wordpress.tar.gz
+        validate_certs: no
+        
+    - name: Extract Wordpress
+      unarchive: src=/tmp/wordpress.tar.gz dest=/var/www copy=no
+
+    - name: Change site to WP
+      become: yes
+      lineinfile:
+        dest=/etc/apache2/sites-enabled/000-default.conf
+        insertafter='ServerAdmin webmaster@localhost'
+        line="DocumentRoot /var/www/wordpress"
+
+    - name: Copy sample conf file
+      command: creates="/var/www/wordpress/wp-config.php" mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+
+    - name: restart apache2
+      service: name=apache2 state=restarted 
+
+- hosts: SQL
+  remote_user: skyrider
+  become: yes
+  vars:
+    db_name: first
+  tasks:
+    - name: Install MySQL
+      apt: name=mysql-server state=latest force_apt_get=yes
+   
+    - name: Install python
+      apt: name=python-mysqldb state=latest force_apt_get=yes
+    
+    - name: Start MySQL
+      action: service name=mysql state=started
+       
+    - name: create MySQL DB
+      mysql_db: name={{ db_name }} state=present
+      become: yes

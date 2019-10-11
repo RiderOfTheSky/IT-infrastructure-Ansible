@@ -2,6 +2,8 @@
 - hosts: apache
   remote_user: skyrider
   become: yes
+  vars_files:
+    - vars.yaml
   tasks:
     - name: install apache2
       apt:
@@ -25,20 +27,39 @@
       get_url:
         url: https://wordpress.org/latest.tar.gz
         dest: /tmp/wordpress.tar.gz
+        force: no
         validate_certs: no
         
     - name: Extract Wordpress
       unarchive: src=/tmp/wordpress.tar.gz dest=/var/www copy=no
 
     - name: Change site to WP
-      become: yes
       lineinfile:
         dest=/etc/apache2/sites-enabled/000-default.conf
-        insertafter='ServerAdmin webmaster@localhost'
-        line="DocumentRoot /var/www/wordpress"
-
+        regexp='DocumentRoot /var/www/html'
+        line='        DocumentRoot /var/www/wordpress'
+        backrefs=yes
+ 
     - name: Copy sample conf file
-      command: creates="/var/www/wordpress/wp-config.php" mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+      command: creates=/var/www/wordpress/wp-config.php mv /var/www/wordpress/wp-config-sample.php /var/www/wordpress/wp-config.php
+
+    - name: WordPress file update 1
+      replace:
+        path: /var/www/wordpress/wp-config.php
+        regexp: 'database_name_here'
+        replace: '{{db_name}}'
+
+    - name: WordPress file update 2
+      replace:
+        path: /var/www/wordpress/wp-config.php
+        regexp: 'username_here'
+        replace: '{{username}}'
+
+    - name: WordPress file update 3
+      replace:
+        path: /var/www/wordpress/wp-config.php
+        regexp: 'password_here'
+        replace: '{{password}}'
 
     - name: restart apache2
       service: name=apache2 state=restarted 
@@ -46,18 +67,24 @@
 - hosts: SQL
   remote_user: skyrider
   become: yes
-  vars:
-    db_name: first
+  vars_files:
+    - vars.yaml 
+  
   tasks:
     - name: Install MySQL
       apt: name=mysql-server state=latest force_apt_get=yes
    
-    - name: Install python
-      apt: name=python-mysqldb state=latest force_apt_get=yes
-    
     - name: Start MySQL
       action: service name=mysql state=started
        
     - name: create MySQL DB
       mysql_db: name={{ db_name }} state=present
-      become: yes
+
+    - name: Create MySQL user
+      mysql_user:
+        name={{ username }}
+        password={{ password }}
+        priv=*.*:ALL
+
+    - name: restart apache2
+      service: name=apache2 state=restarted

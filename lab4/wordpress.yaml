@@ -27,7 +27,6 @@
       get_url:
         url: https://wordpress.org/latest.tar.gz
         dest: /tmp/wordpress.tar.gz
-        force: no
         validate_certs: no
         
     - name: Extract Wordpress
@@ -73,9 +72,6 @@
   tasks:
     - name: Install MySQL
       apt: name=mysql-server state=latest force_apt_get=yes
-   
-    - name: Start MySQL
-      action: service name=mysql state=started
        
     - name: create MySQL DB
       mysql_db: name={{ db_name }} state=present
@@ -84,7 +80,4 @@
       mysql_user:
         name={{ username }}
         password={{ password }}
-        priv=*.*:ALL
-
-    - name: restart apache2
-      service: name=apache2 state=restarted
+        priv=.*:ALL

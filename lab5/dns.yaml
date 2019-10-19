@@ -1,0 +1,83 @@
+---
+- name: Network Setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: create config file for enp0s8
+      blockinfile:
+        create: yes
+        path: /etc/netplan/55-enp0s8.yaml
+        block: |
+          network:
+              ethernets:
+                    enp0s8:
+                        dhcp4: true
+              version: 2
+      notify:
+        - netplan apply
+
+    - name: systemd-resolved
+      service:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+   
+  handlers:
+    - name: netplan apply
+      shell: netplan apply
+
+
+- name: Setup dns (bind9)
+  hosts: dns
+  become: yes
+  vars_files:
+    - vars.yaml
+  tasks:
+    - name: dns packeges
+      apt:
+        name: bind9
+        state: present
+        force_apt_get: yes
+    
+    - name: create config file for bind9
+      copy:
+        dest: /tmp/named.conf.options.j2
+        content: |
+          acl trusted {
+            {% for ip in localip %}
+              {{ ip }};
+            {% endfor %}
+          };
+          options {
+                  directory "/var/cache/bind";
+          
+                  forwarders {
+          {% for ip in forwarders %}
+              {{ ip }};
+          {% endfor %}}
+                  };
+
+                  dnssec-validation auto;
+            allow-query { trusted; };
+
+            auth-nxdomain no;       #conform to RFC1035
+            listen-on-v6 { any; }
+           };
+    
+    - name: config bind
+      copy:
+        remote_src: yes
+        src: /tmp/named.conf.options.j2
+        dest: /etc/bind/named.conf.options
+      notify:
+        - restart bind
+        - check conf
+
+  handlers:
+    - name: restart bind
+      service: 
+        name: bind9
+        state: restarted
+
+    - name: check conf
+      shell: named-checkconf

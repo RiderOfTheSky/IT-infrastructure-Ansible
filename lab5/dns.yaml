@@ -21,7 +21,7 @@
         name: systemd-resolved
         state: stopped
         enabled: no
-   
+  
   handlers:
     - name: netplan apply
       shell: netplan apply
@@ -30,54 +30,56 @@
 - name: Setup dns (bind9)
   hosts: dns
   become: yes
-  vars_files:
-    - vars.yaml
   tasks:
     - name: dns packeges
       apt:
         name: bind9
         state: present
-        force_apt_get: yes
-    
-    - name: create config file for bind9
-      copy:
-        dest: /tmp/named.conf.options.j2
-        content: |
-          acl trusted {
-            {% for ip in localip %}
-              {{ ip }};
-            {% endfor %}
-          };
-          options {
-                  directory "/var/cache/bind";
-          
-                  forwarders {
-          {% for ip in forwarders %}
-              {{ ip }};
-          {% endfor %}}
-                  };
+        force_apt_get: yes 
 
-                  dnssec-validation auto;
-            allow-query { trusted; };
-
-            auth-nxdomain no;       #conform to RFC1035
-            listen-on-v6 { any; }
-           };
-    
-    - name: config bind
-      copy:
-        remote_src: yes
-        src: /tmp/named.conf.options.j2
+    - name: config bind9 named.conf.options
+      template:
+        src: templates/named.conf.options.j2
         dest: /etc/bind/named.conf.options
       notify:
         - restart bind
+        - check conf     
+
+    - name: config bind9 named.conf.local
+      template:
+        src: templates/named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+      notify:
+        - restart bind
         - check conf
+    
+    - name: hash
+      copy:
+        content: "{{dns_records|hash}}"
+        dest: /etc/bind/db.riderly.hash
+      when: dns_role == "master"
+      notify:
+        - timestamp
+        - config db
+        - reload DB
 
   handlers:
+    - name: timestamp
+      shell: date +%s
+      register: ts
+
+    - name: config db
+      template:
+        src: templates/db.riderly.j2
+        dest: /etc/bind/db.riderly
+
+    - name: check conf
+      shell: named-checkconf
+
     - name: restart bind
       service: 
         name: bind9
         state: restarted
 
-    - name: check conf
-      shell: named-checkconf
+    - name: reload DB
+      shell: rndc reload

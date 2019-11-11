@@ -1,0 +1,60 @@
+---
+- name: Setup server
+  hosts: server
+  become: yes
+  tasks:
+   - name: create user 
+     user:
+       name: backup
+       state: present
+       create_home: yes       
+
+   - name: disable sudo pass
+     copy:
+       dest: /etc/sudoers.d/backup
+       content: "backup      ALL = NOPASSWD: ALL"
+
+   - name: add permission for user backup
+     copy:
+       dest: /etc/sudoers.d/backup2
+       content: "backup    ALL=(ALL:ALL) ALL"
+  
+   - name: create directory
+     file:
+       path: /srv/backup
+       state: directory
+       owner: backup
+       mode: '760'
+
+- name: preparation stage I
+  hosts: agent
+  become: yes
+  tasks: 
+   - name: add public ssh key to VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa.pub
+       dest: ~/.ssh/id_rsa.pub
+  
+   - name: change rights of the ~/.ssh
+     file:
+       path: ~/.ssh
+       mode: '1700'
+
+- name: preparation stage II
+  hosts: agent
+  become: yes
+  tasks: 
+   - name: add private ssh key to VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa
+       dest: ~/.ssh/id_rsa
+       mode: '0700'
+
+- name: preparation stage III
+  hosts: server
+  become: yes
+  tasks:
+   - name: copy public key to VM2 (authorized_key)
+     authorized_key:
+       user: backup
+       key: "{{ lookup('file', '/home/riderofthesky/.ssh/id_rsa.pub') }}"

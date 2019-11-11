@@ -1,0 +1,17 @@
+---
+- name: Setup agent
+  hosts: agent
+  become: yes
+  tasks:
+   - name: disable sudo pass
+     copy:
+       dest: /etc/sudoers.d/backup
+       content: "backup      ALL = NOPASSWD: ALL"
+
+   - name: create user
+     user:
+       name: backup
+       state: present
+       create_home: yes
+       
+   

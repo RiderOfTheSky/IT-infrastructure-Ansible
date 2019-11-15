@@ -1,0 +1,12 @@
+#Ansible: backup_createion
+#<schedule> <user> <command for shell>
+0 0 * * * backup sudo cp /etc/bind/db.riderly /backup/dns
+0 0 * * * backup sudo cp /etc/bind/named.conf.local /backup/dns
+0 0 * * * backup sudo cp /etc/bind/named.conf.options /backup/dns
+0 0 * * * backup sudo cp /var/www/wordpress/wp-config.php /backup/wordpress
+0 0 * * * backup sudo cp /etc/apache2/sites-enabled/000-default.conf /backup/wordpress
+0 0 * * * backup sudo mysqldump Dnavi > /backup/mysql/Dnavi.sql
+0 0 * * * backup duplicity --no-encryption full /backup/ rsync://192.168.56.102//srv/backup/all
+55 23 * * 1-6 backup duplicity --no-encryption incremental /backup/ rsync://192.168.56.102//srv/backup/all
+1 0 * * 0 backup duplicity delete-older-than 30d rsync://192.168.56.102//srv/backup/all
+

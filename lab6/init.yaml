@@ -1,0 +1,64 @@
+---
+- name: No password sudo access
+  hosts: all
+  tasks:
+   - name: add user to var
+     command: "whoami"
+     register: user
+   
+   - name: disable sudo pass
+     become: yes
+     copy:
+       dest: /etc/sudoers.d/user
+       content: "{{ user.stdout }}      ALL = NOPASSWD: ALL"
+
+- name: Correct networking
+  hosts: all
+  become: yes
+  tasks:
+    - name: create config file for enp0s8
+      blockinfile:
+        create: yes
+        path: /etc/netplan/55-enp0s8.yaml
+        block: |
+          network:
+              ethernets:
+                    enp0s8:
+                        dhcp4: true
+              version: 2
+      notify:
+        - netplan apply
+  
+  handlers:
+    - name: netplan apply
+      shell: netplan apply
+
+
+- name: Key based SSH access stage I
+  hosts: agent
+  become: yes
+  tasks: 
+   - name: add public ssh key to VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa.pub
+       dest: ~/.ssh/id_rsa.pub
+  
+   - name: change rights of the ~/.ssh
+     file:
+       path: ~/.ssh
+       mode: '1700'
+ 
+   - name: add private ssh key to VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa
+       dest: ~/.ssh/id_rsa
+       mode: '0700'
+
+- name: Key based SSH access stage II
+  hosts: server
+  become: yes
+  tasks:
+   - name: copy public key to VM2 (authorized_key)
+     authorized_key:
+       user: backup
+       key: "{{ lookup('file', '/home/riderofthesky/.ssh/id_rsa.pub') }}"

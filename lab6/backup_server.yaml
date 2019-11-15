@@ -1,11 +1,12 @@
 ---
-- name: Setup server
+- name: SETUP SERVER
   hosts: server
   become: yes
   tasks:
    - name: create user 
      user:
        name: backup
+       shell: /bin/bash
        state: present
        create_home: yes       
 
@@ -19,14 +20,42 @@
        dest: /etc/sudoers.d/backup2
        content: "backup    ALL=(ALL:ALL) ALL"
   
-   - name: create directory
+   - name: create directory plus rights
+     file:
+       path: /srv/
+       state: directory
+       owner: backup
+       mode: '1740'
+
+   - name: create rights of directory /backup
      file:
        path: /srv/backup
        state: directory
        owner: backup
-       mode: '760'
+       mode: '1740'
 
-- name: preparation stage I
+   - name: create right of directory /all
+     file:
+       path: /srv/backup/dns
+       state: directory
+       owner: backup
+       mode: '1740'
+
+   - name: create right of directory /all
+     file:
+       path: /srv/backup/wordpress
+       state: directory
+       owner: backup
+       mode: '1740'
+
+   - name: create right of directory /all
+     file:
+       path: /srv/backup/mysql
+       state: directory
+       owner: backup
+       mode: '1740'
+
+- name: PREPARATION STAGE I
   hosts: agent
   become: yes
   tasks: 
@@ -40,7 +69,7 @@
        path: ~/.ssh
        mode: '1700'
 
-- name: preparation stage II
+- name: PREPARATION STAGE II
   hosts: agent
   become: yes
   tasks: 
@@ -50,7 +79,7 @@
        dest: ~/.ssh/id_rsa
        mode: '0700'
 
-- name: preparation stage III
+- name: PREPARATION STAGE III
   hosts: server
   become: yes
   tasks:
@@ -58,3 +87,50 @@
      authorized_key:
        user: backup
        key: "{{ lookup('file', '/home/riderofthesky/.ssh/id_rsa.pub') }}"
+
+- name: PREPARATION STAGE IV
+  hosts: agent
+  become: yes
+  tasks: 
+   - name: add public ssh key to backup user of VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa.pub
+       dest: /home/backup/.ssh/id_rsa.pub
+  
+- name: PREPARATION STAGE V
+  hosts: agent
+  become: yes
+  tasks: 
+   - name: add private ssh key to backup user of VM1
+     copy:
+       src: /home/riderofthesky/.ssh/id_rsa
+       dest: /home/backup/.ssh/id_rsa
+       owner: backup
+       mode: '0600'
+
+- name: SETUP BACKUP SYSTEM
+  hosts: agent
+  become: yes
+  tasks:
+   - name: install duplicity
+     apt:
+       name: duplicity
+       state: latest
+       force_apt_get: yes
+
+   - name: install MTA
+     apt:
+       name: postfix
+       state: latest
+       force_apt_get: yes
+
+   - name: Create schedule file
+     template:
+       src: templates/backup_creation
+       dest: /etc/cron.d/
+
+   - name: make all right
+     file:
+       path: /etc/cron.d/backup_creation
+       group: root
+       owner: root

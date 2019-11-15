@@ -11,6 +11,7 @@
    - name: create user
      user:
        name: backup
+       shell: /bin/bash
        state: present
        create_home: yes
        

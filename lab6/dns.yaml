@@ -1,0 +1,116 @@
+---
+- name: Network Setup
+  hosts: all
+  become: yes
+  tasks:
+    - name: create config file for enp0s8
+      blockinfile:
+        create: yes
+        path: /etc/netplan/55-enp0s8.yaml
+        block: |
+          network:
+              ethernets:
+                    enp0s8:
+                        dhcp4: true
+              version: 2
+      notify:
+        - netplan apply
+
+    - name: systemd-resolved
+      service:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
+  
+  handlers:
+    - name: netplan apply
+      shell: netplan apply
+
+
+- name: Setup dns (bind9)
+  hosts: all
+  become: yes
+  tasks:
+    - name: dns packeges
+      apt:
+        name: bind9
+        state: present
+        force_apt_get: yes 
+
+    - name: config bind9 named.conf.options
+      template:
+        src: templates/named.conf.options.j2
+        dest: /etc/bind/named.conf.options
+      notify:
+        - restart bind
+        - check conf     
+
+    - name: config bind9 named.conf.local
+      template:
+        src: templates/named.conf.local.j2
+        dest: /etc/bind/named.conf.local
+      notify:
+        - restart bind
+        - check conf
+    
+    - name: hash
+      copy:
+        content: "{{dns_records|hash}}"
+        dest: /etc/bind/db.riderly.hash
+      when: dns_role == "master"
+      notify:
+        - timestamp
+        - config db
+        - reload DB
+
+- name: Create backups
+  hosts: agent
+  become: yes
+  tasks:
+    - name: Create directory for backup
+      file:
+        path: /backup/dns
+        state: directory
+        owner: backup
+        mode: '1740'
+
+    - name: Create backup of dns db
+      copy:
+        src: /etc/bind/db.riderly
+        dest: /backup/dns/
+        remote_src: yes
+
+    - name: Create backup of conf.local
+      copy:
+        src: /etc/bind/named.conf.local
+        dest: /backup/dns/
+        remote_src: yes
+
+    - name: Create backup conf.options
+      copy:
+        src: /etc/bind/named.conf.options
+        dest: /backup/dns/
+        remote_src: yes
+
+      
+
+  handlers:
+    - name: timestamp
+      shell: date +%s
+      register: ts
+
+    - name: config db
+      template:
+        src: templates/db.riderly.j2
+        dest: /etc/bind/db.riderly
+
+    - name: check conf
+      shell: named-checkconf
+
+    - name: restart bind
+      service: 
+        name: bind9
+        state: restarted
+
+    - name: reload DB
+      shell: rndc reload

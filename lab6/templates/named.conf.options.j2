@@ -1,0 +1,21 @@
+acl trusted {
+ {% for ip in localip %}
+ {{ ip }};
+{% endfor %}
+};
+options {
+  directory "/var/cache/bind";
+
+  forwarders {
+   {% for ip in forwarders %}
+     {{ ip }};
+{% endfor %}
+};
+
+  dnssec-validation auto;
+  allow-query {
+  trusted;
+};
+  auth-nxdomain no;  # conform to RFC1035
+  listen-on-v6 { any; };
+};

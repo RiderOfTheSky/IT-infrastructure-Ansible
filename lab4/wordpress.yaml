@@ -5,11 +5,11 @@
   vars_files:
     - vars.yaml
   tasks:
-    - name: install apache2
-      apt:
-        name: apache2
-        state: latest
-        force_apt_get: yes
+  #   - name: install apache2
+  #    apt:
+  #      name: apache2
+  #      state: latest
+  #      force_apt_get: yes
 
     - name: install PHP module for apache
       apt: 

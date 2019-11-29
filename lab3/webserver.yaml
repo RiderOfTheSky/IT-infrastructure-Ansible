@@ -3,14 +3,17 @@
   remote_user: skyrider
   become: yes
   tasks:
-    - name: install apache2
-      apt:
-        name: apache2
-        state: latest
-        force_apt_get: yes
+#    - name: install apache2
+#      apt:
+#        name: apache2
+#        state: latest
+#        force_apt_get: yes
 
-    - name: install PHP
-      action: yum name=php update_cache=yes state=latest force_apt_get=yes
+    - name: install PHP module for apache
+      apt: 
+        name: libapache2-mod-php  
+        state: latest 
+        force_apt_get: yes
 
     - name: apache listen on port 8080
       lineinfile:

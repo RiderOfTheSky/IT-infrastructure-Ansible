@@ -1,68 +1,53 @@
----
-- name: No password sudo access
-  hosts: all
-  tasks:
-   - name: add user to var
-     command: "whoami"
-     register: user
+- name: add user to var
+  command: "whoami"
+  register: user
    
-   - name: disable sudo pass
-     become: yes
-     copy:
-       dest: /etc/sudoers.d/user
-       content: "{{ user.stdout }}      ALL = NOPASSWD: ALL"
-
-- name: Correct networking
-  hosts: all
+- name: disable sudo pass
   become: yes
-  tasks:
-    - name: create config file for enp0s8
-      blockinfile:
-        create: yes
-        path: /etc/netplan/55-enp0s8.yaml
-        block: |
-          network:
-              ethernets:
-                    enp0s8:
-                        dhcp4: true
-              version: 2
-      notify:
-        - netplan apply
-  
-  handlers:
-    - name: netplan apply
-      shell: netplan apply
+  copy:
+    dest: /etc/sudoers.d/user
+    content: "{{ user.stdout }}      ALL = NOPASSWD: ALL"
 
-
-- name: Key based SSH access stage I
-  hosts: All
+- name: create config file for enp0s8
   become: yes
-  tasks: 
-   - name: add user to var
-     command: "whoami"
-     register: user
-     
-   - name: add public ssh key to VM1
-     copy:
-       src: /home/riderofthesky/.ssh/id_rsa.pub
-       dest: ~/.ssh/id_rsa.pub
+  blockinfile:
+    create: yes
+    path: /etc/netplan/55-enp0s8.yaml
+    block: |
+      network:
+         ethernets:
+               enp0s8:
+                   dhcp4: true
+         version: 2
+  notify:
+    - netplan apply
+   
+- name: add public ssh key to VM1
+  become: yes
+  copy:
+    src: /home/riderofthesky/.ssh/id_rsa.pub
+    dest: ~/.ssh/id_rsa.pub
   
-   - name: change rights of the ~/.ssh
-     file:
-       path: ~/.ssh
-       mode: '1700'
+- name: change rights of the ~/.ssh
+  become: yes
+  file:
+    path: ~/.ssh
+    mode: '1700'
 
-   - name: add public ssh key to backup user
-     copy:
-       src: /home/riderofthesky/.ssh/id_rsa.pub
-       dest: /home/{{ user.stdout }}/.ssh/id_rsa.pub
+- name: add public ssh key to backup user
+  become: yes
+  copy:
+    src: /home/riderofthesky/.ssh/id_rsa.pub
+    dest: /home/{{ user.stdout }}/.ssh/id_rsa.pub
   
-   - name: change rights of the /home/backup/.ssh
-     file:
-       path: /home/{{user.stdout}}/.ssh
-       mode: '1700' 
+- name: change rights of the /home/backup/.ssh
+  become: yes
+  file:
+    path: /home/{{user.stdout}}/.ssh
+    mode: '1700' 
 
-   - name: copy public key
-     authorized_key:
-       user: "{{ user.stdout }}"
-       key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+- name: copy public key
+  become: yes
+  authorized_key:
+    user: "{{ user.stdout }}"
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"

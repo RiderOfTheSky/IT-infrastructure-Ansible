@@ -28,7 +28,7 @@ dns_records:
     address: 192.168.56.102
   - name: ns.riderly.ttu.
     type: CNAME
-    address: infra01.riderly.ttu.
+    address: riderly.ttu.
   - name: ns1.riderly.ttu.
     type: CNAME
     address: infra02.riderly.ttu.

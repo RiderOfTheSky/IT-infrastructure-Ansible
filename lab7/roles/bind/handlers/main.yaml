@@ -1,0 +1,19 @@
+- name: timestamp
+  shell: date +%s
+  register: ts
+
+- name: config db
+  template:
+    src: templates/db.riderly.j2
+    dest: /etc/bind/db.riderly
+
+- name: check conf
+  shell: named-checkconf
+
+- name: restart bind
+  service: 
+    name: bind9
+    state: restarted
+
+- name: reload DB
+  shell: rndc reload

@@ -1,0 +1,9 @@
+[Unit]
+Description=Bind Exporter
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/bind_exporter
+
+[Install]
+WantedBy=multi-user.target

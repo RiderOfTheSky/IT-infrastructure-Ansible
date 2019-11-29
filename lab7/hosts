@@ -1,0 +1,12 @@
+[agent]
+infra01 ansible_host=192.168.56.101 ansible_user=skyrider
+
+[server]
+infra02 ansible_host=192.168.56.102 ansible_user=son
+
+[linux]
+infra01 ansible_host=192.168.56.101 ansible_user=skyrider
+infra02 ansible_host=192.168.56.102 ansible_user=son
+
+[prometheus]
+infra01 ansible_host=192.168.56.101 ansible_user=skyrider

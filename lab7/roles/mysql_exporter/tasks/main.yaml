@@ -1,0 +1,59 @@
+- name: user for running the exporter
+  user:
+    name: mysql
+
+- name: Install MySQL
+  apt: 
+    name: mysql-server 
+    state: latest 
+    force_apt_get: yes
+       
+- name: Create MySQL user
+  mysql_user:
+    name={{ username }}
+    password={{ password }}
+    priv=*.*:ALL
+
+- name: check if exists
+  stat:
+    path: /opt/mysqld_exporter-0.12.1.linux-amd64.tar.gz
+  register: abcd
+  
+- name: Download mysql_exporter
+  get_url:
+    url: https://github.com/prometheus/mysqld_exporter/releases/download/v0.12.1/mysqld_exporter-0.12.1.linux-amd64.tar.gz
+    dest: /opt/
+  when: abcd.stat.exists == False
+
+- name: Creater directory
+  file:
+    path: /opt/mysql_exporter
+    state: directory
+    mode: '0755'
+
+- name: unarchive
+  unarchive:
+    src: /opt/mysqld_exporter-0.12.1.linux-amd64.tar.gz
+    dest: /opt/mysql_exporter
+    remote_src: yes
+
+- name: .my.conf update
+  template:
+    src: .my.cnf
+    dest: /root/.my.cnf
+
+- name: systemd mysql_exporter
+  template:
+    src: mysql_exporter.service.j2
+    dest: /etc/systemd/system/mysql_exporter.service
+    mode: '0777'
+#  notify:
+#    - restart systemd
+
+- name: start exporter
+  service:
+    name: mysql_exporter
+    state: started
+    enabled: yes
+#  notify:
+#    - restart mysql_exporter

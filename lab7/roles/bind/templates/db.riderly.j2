@@ -1,0 +1,11 @@
+$TTL	604800
+@	IN	SOA	riderly.ttu. root.riderly.ttu. (
+	{{ ts.stdout_lines[0] }}	; Serial
+			   604800	; Refresh
+                           86400	; Retry
+                           2419200	; Expire
+                           604800 )	; Negative Cache TTL
+;
+ {% for s in dns_records %}
+ {{ s.name }} IN {{ s.type }} {{ s.address }}
+ {% endfor %}

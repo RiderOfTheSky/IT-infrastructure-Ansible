@@ -1,0 +1,16 @@
+---
+- name: node_exporter
+  hosts: linux
+  become: yes
+  roles:
+    - node_exporter
+    - bind 
+
+
+- name: prometheus
+  hosts: prometheus
+  become: yes
+  roles:
+    - prometheus
+    - grafana
+    - mysql_exporter

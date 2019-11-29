@@ -8,14 +8,14 @@
   hosts: linux
   become: yes
   roles:
-   # - node_exporter
-   # - bind 
+    - node_exporter
+    - bind 
 
 
 - name: prometheus
   hosts: prometheus
   become: yes
   roles:
-   # - prometheus
-   # - grafana
-   # - mysql_exporter
+    - prometheus
+    - grafana
+    - mysql_exporter

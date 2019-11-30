@@ -1,0 +1,14 @@
+zone "riderly.ttu" {
+{% if dns_role == "master" %}
+     type master;
+     file "/etc/bind/db.riderly";
+     allow-transfer {192.168.56.102;};
+     notify yes;
+{% else %}
+     type slave;
+     file "/var/lib/bind/db.riderly";
+     masters {
+     {{ master_ip }};
+   };
+{% endif %}
+};

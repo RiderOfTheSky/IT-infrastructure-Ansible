@@ -1,0 +1,23 @@
+---
+- name: initial setup
+  hosts: nat
+  roles:
+    - init
+
+- name: bind
+  hosts: linux
+  become: yes
+  roles:
+    - bind 
+
+- name: influx
+  hosts: infra02
+  become: yes
+  roles:
+    - influxdb
+
+- name: influx
+  hosts: infra01
+  become: yes
+  roles:
+    - grafana

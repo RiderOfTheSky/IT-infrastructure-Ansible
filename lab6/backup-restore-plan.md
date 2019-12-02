@@ -20,3 +20,5 @@ if it is a local machine, use this command: cp /backup/dns/*file name* /etc/bind
 if it is a remote machine, use this command: scp backup@*ip of the remote machine*/backup/dns/*file name* *location of BIND* (/etc/bind/ by default)
 
 - [x] Сделать документацию
+- [x] Прийти на лабу
+- [] Сделать все 9 лабов

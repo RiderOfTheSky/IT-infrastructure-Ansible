@@ -3,7 +3,8 @@
 #useful advice: make backup throw "copy"
 
 Backup restore plan:
-1) MySQL database backup: enter the command below to restore database from backup. That should be done with user BACKUP 
+**All restore things should be done with user BACKUP or ROOT** 
+1) MySQL database backup: enter the command below to restore database from backup.
 mysql -u [user] -p [database_name] < [filename].sql
 
 The location of the local backup is next: /backup/mysql/*[filename]*.sql
@@ -17,3 +18,4 @@ The location of the remote backup is next: /srv/backup/all
 To restore it, just put all _(if necessary)_ files into BIND installation directory. By default it is /etc/bind/
 if it is a local machine, use this command: cp /backup/dns/*file name* /etc/bind/
 if it is a remote machine, use this command: scp backup@*ip of the remote machine*/backup/dns/*file name* *location of BIND* (/etc/bind/ by default)
+[x] Сделать документацию

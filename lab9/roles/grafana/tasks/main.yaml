@@ -1,0 +1,29 @@
+- name: install some additional soft
+  apt:
+    package: ['adduser', 'libfontconfig']
+
+- name: install docker
+  apt:
+    name: docker.io
+    state: latest
+
+- name: install python
+  apt:
+    name: python
+    state: latest
+
+- name: install pip
+  apt:
+    name: python-pip
+    state: latest
+
+- name: install Docker py module
+  pip:
+    name: docker
+
+- name: create grafana container
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    published_ports:
+      - "3000:3000"

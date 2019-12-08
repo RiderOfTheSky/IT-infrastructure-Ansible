@@ -1,0 +1,12 @@
+---
+- name: prometheus
+  hosts: server
+  become: yes
+  roles:
+    - prometheus
+
+- name: grafana
+  hosts: agent
+  become: yes
+  roles:
+    - grafana

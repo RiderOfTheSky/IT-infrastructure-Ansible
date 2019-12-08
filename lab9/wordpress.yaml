@@ -1,0 +1,12 @@
+---
+- name: MySQL VM2
+  hosts: server
+  become: yes
+  roles:
+    - mysql
+
+- name: Wordpress VM1
+  hosts: agent
+  become: yes
+  roles:
+    - wordpress

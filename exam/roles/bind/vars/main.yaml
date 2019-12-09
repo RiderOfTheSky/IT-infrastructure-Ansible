@@ -1,0 +1,47 @@
+---
+localip:
+  - 192.168.56.0/24
+  - 10.0.2.0/24
+  - localhost
+forwarders:
+  - 8.8.8.8
+  - 1.1.1.1
+  - 9.9.9.10
+dns_records:
+  - name: riderly.ttu.
+    type: A
+    address: 192.168.56.101
+  - name: riderly.ttu.
+    type: A
+    address: 192.168.56.102
+  - name: riderly.ttu.
+    type: NS
+    address: infra01.riderly.ttu.
+  - name: riderly.ttu.
+    type: NS
+    address: infra02.riderly.ttu.
+  - name: infra01.riderly.ttu.
+    type: A
+    address: 192.168.56.101
+  - name: infra02.riderly.ttu.
+    type: A
+    address: 192.168.56.102
+  - name: ns.riderly.ttu.
+    type: CNAME
+    address: riderly.ttu.
+  - name: ns1.riderly.ttu.
+    type: CNAME
+    address: infra02.riderly.ttu.
+  - name: ns2.riderly.ttu.
+    type: CNAME
+    address: infra02.riderly.ttu.
+  - name: www.riderly.ttu.
+    type: NS
+    address: infra01.riderly.ttu.
+  - name: prometheus.riderly.ttu.
+    type: CNAME
+    address: infra01.riderly.ttu.
+  - name: www.riderly.ttu.
+    type: CNAME
+    address: infra01.riderly.ttu.
+

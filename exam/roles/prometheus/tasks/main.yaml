@@ -1,0 +1,51 @@
+- name: check if exists
+  stat:
+    path: /opt/prometheus-{{version}}.linux-amd64.tar.gz
+  register: abcd
+
+- name: Download
+  get_url:
+    url: https://github.com/prometheus/prometheus/releases/download/v{{version}}/prometheus-2.13.1.linux-amd64.tar.gz
+    dest: /opt/prometheus-{{version}}.linux-amd64.tar.gz
+  when: abcd.stat.exists == False
+
+- name: folder
+  file:
+    path: /opt/prometheus
+    state: directory
+    mode: '0755'
+
+- name: untar
+  unarchive:
+    src: /opt/prometheus-{{version}}.linux-amd64.tar.gz
+    dest: /opt/prometheus
+    remote_src: yes
+
+- name: check if exists
+  stat:
+    path: /opt/prometheus/NOTICE
+  register: abc
+  
+- name: rename directory
+  shell: cp -a /opt/prometheus/prometheus-{{version}}.linux-amd64/. /opt/prometheus/
+  when: abc.stat.exists == False
+
+- name: config prometheus
+  template:
+    src: prometheus.yaml.j2
+    dest: /opt/prometheus/prometheus.yml
+  notify:
+    - restart prometheus
+
+- name: systemd prometheus
+  template:
+    src: prometheus.service.j2
+    dest: /etc/systemd/system/prometheus.service
+  notify:
+    - restart systemd
+
+- name: start prometheus
+  service:
+    name: prometheus
+    state: started
+    enabled: yes

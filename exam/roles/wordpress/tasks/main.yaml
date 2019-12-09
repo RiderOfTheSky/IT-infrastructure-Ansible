@@ -1,0 +1,32 @@
+- name: install docker
+  apt:
+    name: docker.io
+    state: latest
+
+- name: install python
+  apt:
+    name: python
+    state: latest
+
+- name: install pip
+  apt:
+    name: python-pip
+    state: latest
+
+- name: install Docker py module
+  pip:
+    name: docker
+
+- name: create wp container
+  docker_container:
+    name: wp
+    image: wordpress
+#    published_ports:
+#      - "8080:80"
+- name: stop container
+  docker_container: 
+    name: wp
+    state: stopped
+
+- name: command
+  shell: docker run --name wordpress10 -e WORDPRESS_DB_HOST=192.168.56.102:3306 -e WORDPRESS_DB_USER={{username}} -e WORDPRESS_DB_PASSWORD={{password}} -p8080:80 -d wordpress

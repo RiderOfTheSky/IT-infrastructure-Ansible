@@ -1,0 +1,21 @@
+---
+version: 2.13.1
+jobs:
+  - name: prometheus
+    port: 9090
+    targets:
+      - prometheus.riderly.ttu
+  - name: linux
+    port: 9100
+    targets:
+      - infra01.riderly.ttu
+      - infra02.riderly.ttu
+  - name: bind
+    port: 9119
+    targets:
+      - ns1.riderly.ttu
+      - ns2.riderly.ttu
+  - name: mysql
+    port: 9104
+    targets:
+      - infra01.riderly.ttu

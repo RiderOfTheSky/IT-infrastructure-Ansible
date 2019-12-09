@@ -1,0 +1,54 @@
+- name: install docker
+  apt:
+    name: docker.io
+    state: latest
+
+- name: install python
+  apt:
+    name: python
+    state: latest
+
+- name: install pip
+  apt:
+    name: python-pip
+    state: latest
+
+- name: install PyMySql
+  apt:
+    name: python-pymysql
+    state: latest
+
+- name: install Docker py module
+  pip:
+    name: docker
+
+- name: Install MySQL
+  apt: 
+    name: mysql-server 
+    state: latest 
+    force_apt_get: yes
+
+- name: create MySQL DB
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: Create MySQL user
+  mysql_user:
+    name: "{{ username }}"
+    password: "{{ password }}"
+    priv: 'wordpress.*:ALL,GRANT'
+
+- name: Create MySQL user for remote access
+  mysql_user:
+    name: "{{ username }}"
+    password: "{{ password }}"
+    priv: 'wordpress.*:ALL,GRANT'
+    host: "%"
+
+- name: allow remote access to MySQL db
+  replace: 
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf 
+    regexp: 'bind-address		= 127.0.0.1'
+    replace: 'bind-address		= 0.0.0.0'
+

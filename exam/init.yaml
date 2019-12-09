@@ -1,0 +1,5 @@
+---
+- name: initial setup
+  hosts: nat
+  roles:
+    - init

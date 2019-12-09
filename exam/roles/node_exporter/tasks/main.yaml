@@ -1,0 +1,33 @@
+- name:
+  user:
+    name: node
+
+- name: Download node_exporter
+  get_url:
+    url: https://github.com/prometheus/node_exporter/releases/download/v{{version}}/node_exporter-0.18.1.linux-amd64.tar.gz
+    dest: /opt/
+
+- name: Creater directory
+  file:
+    path: /opt/node_exporter
+    state: directory
+    mode: '0755'
+
+- name: unarchive
+  unarchive:
+    src: /opt/node_exporter-{{version}}.linux-amd64.tar.gz
+    dest: /opt/node_exporter
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+
+- name: systemd node_exporter
+  template:
+    src: node_exporter.service.j2
+    dest: /etc/systemd/system/node_exporter.service
+
+- name: start exporter
+  service:
+    name: node_exporter
+    state: started
+    enabled: yes

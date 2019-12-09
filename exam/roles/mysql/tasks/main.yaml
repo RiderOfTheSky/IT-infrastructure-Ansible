@@ -1,21 +1,6 @@
 - name: install docker
   apt:
-    name: docker.io
-    state: latest
-
-- name: install python
-  apt:
-    name: python
-    state: latest
-
-- name: install pip
-  apt:
-    name: python-pip
-    state: latest
-
-- name: install PyMySql
-  apt:
-    name: python-pymysql
+    name: ['docker.io', 'python', 'python-pip', 'python-pymysql']
     state: latest
 
 - name: install Docker py module
@@ -51,4 +36,3 @@
     path: /etc/mysql/mysql.conf.d/mysqld.cnf 
     regexp: 'bind-address		= 127.0.0.1'
     replace: 'bind-address		= 0.0.0.0'
-

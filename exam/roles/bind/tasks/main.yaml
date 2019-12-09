@@ -1,19 +1,4 @@
 ---
-#- name: Network Setup
-#  hosts: all
-#  become: yes
-#  tasks:
-#- name: systemd-resolved
-#  service:
-#    name: systemd-resolved
-#    state: stopped
-#    enabled: no
-  
-
-#- name: Setup dns (bind9)
-#  hosts: dns
-#  become: yes
-#  tasks:
 - name: dns packeges
   apt:
     name: bind9
@@ -22,7 +7,7 @@
 
 - name: config bind9 named.conf.options
   template:
-    src: templates/named.conf.options.j2
+    src: named.conf.options.j2
     dest: /etc/bind/named.conf.options
   notify:
     - restart bind
@@ -30,26 +15,32 @@
 
 - name: config bind9 named.conf.local
   template:
-    src: templates/named.conf.local.j2
+    src: named.conf.local.j2
     dest: /etc/bind/named.conf.local
   notify:
     - restart bind
     - check conf
-    
+
 - name: hash
   copy:
-    content: "{{dns_records|hash}}"
+    content: "{{ dns_records | hash }}"
     dest: /etc/bind/db.riderly.hash
-  when: dns_role == "master"
+#  when: dns_role == "master"
   notify:
     - timestamp
     - config db
     - reload DB
 
+- name: check that the file exists
+  stat:
+    path: /opt/go1.13.3.linux-amd64.tar.gz
+  register: asd
+
 - name: download GO
   get_url:
     url: https://dl.google.com/go/go1.13.3.linux-amd64.tar.gz
     dest: /opt/go1.13.3.linux-amd64.tar.gz
+  when: asd.stat.exists == False
 
 - name: folder
   file:

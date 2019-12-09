@@ -40,20 +40,21 @@
 - name: .my.conf update
   template:
     src: .my.cnf
-    dest: /root/.my.cnf
+    dest: /nonexistent/.my.cnf
 
 - name: systemd mysql_exporter
   template:
     src: mysql_exporter.service.j2
     dest: /etc/systemd/system/mysql_exporter.service
     mode: '0777'
-#  notify:
-#    - restart systemd
+  notify:
+    - restart systemd
 
 - name: start exporter
   service:
     name: mysql_exporter
     state: started
     enabled: yes
-#  notify:
-#    - restart mysql_exporter
+  notify:
+    - restart mysql_exporter
+

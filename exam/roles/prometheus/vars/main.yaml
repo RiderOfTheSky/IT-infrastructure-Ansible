@@ -8,7 +8,6 @@ jobs:
   - name: linux
     port: 9100
     targets:
-      - infra01.riderly.ttu
       - infra02.riderly.ttu
   - name: bind
     port: 9119
@@ -18,4 +17,4 @@ jobs:
   - name: mysql
     port: 9104
     targets:
-      - infra01.riderly.ttu
+      - infra02.riderly.ttu

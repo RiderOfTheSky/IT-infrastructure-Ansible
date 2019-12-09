@@ -1,24 +1,24 @@
 ---
-#agent = infra01 = bind slave = 192.168.56.101
+#agent  = infra01 = bind slave  = 192.168.56.101
 #server = infra02 = bind master = 192.168.56.102
-#- name: MySQL VM2
-#  hosts: server
-#  become: yes
-#  roles:
-#    - mysql
-#    - mysql_exporter
-#    - prometheus
-#    - grafana
+- name: node_exporter
+  hosts: linux
+  become: yes
+  roles:
+    - bind
+    - node_exporter
+
+- name: MySQL VM2
+  hosts: server
+  become: yes
+  roles:
+    - mysql
+    - prometheus
+    - grafana
+    - mysql_exporter
 
 - name: Wordpress VM1
   hosts: agent
   become: yes
   roles:
     - wordpress
-
-- name: node_exporter
-  hosts: linux
-  become: yes
-  roles:
-    - node_exporter
-    - bind

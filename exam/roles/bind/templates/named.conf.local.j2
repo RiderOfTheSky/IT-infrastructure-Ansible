@@ -2,7 +2,7 @@ zone "riderly.ttu" {
 {% if dns_role == "master" %}
      type master;
      file "/etc/bind/db.riderly";
-     allow-transfer {192.168.56.102;};
+     allow-transfer {192.168.56.101;};
      notify yes;
 {% else %}
      type slave;

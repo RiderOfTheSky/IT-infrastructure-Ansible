@@ -4,7 +4,7 @@
 
 - name: config db
   template:
-    src: templates/db.riderly.j2
+    src: db.riderly.j2
     dest: /etc/bind/db.riderly
 
 - name: check conf

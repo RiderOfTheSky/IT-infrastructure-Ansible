@@ -1,7 +1,3 @@
-- name: user for running the exporter
-  user:
-    name: mysql
-       
 - name: Create MySQL user
   mysql_user:
     name={{ username }}

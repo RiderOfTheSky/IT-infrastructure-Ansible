@@ -25,7 +25,7 @@
   copy:
     content: "{{ dns_records | hash }}"
     dest: /etc/bind/db.riderly.hash
-#  when: dns_role == "master"
+  when: dns_role == "master"
   notify:
     - timestamp
     - config db

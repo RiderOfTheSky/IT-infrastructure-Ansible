@@ -1,11 +1,7 @@
-- name: install docker
+- name: install all needed stuff
   apt:
-    name: ['docker.io', 'python', 'python-pip', 'python-pymysql']
+    name: ['python', 'python-pip', 'python-pymysql']
     state: latest
-
-- name: install Docker py module
-  pip:
-    name: docker
 
 - name: Install MySQL
   apt: 

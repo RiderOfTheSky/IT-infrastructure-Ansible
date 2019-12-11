@@ -2,9 +2,8 @@
 Description=Mysql exporter
 
 [Service]
-User=mysql
-ExecStart=/opt/mysql_exporter/mysqld_exporter-0.12.1.linux-amd64/mysqld_exporter  
-#--web.listen-address=0.0.0.0:9104
+User=root
+ExecStart=/opt/mysql_exporter/mysqld_exporter-0.12.1.linux-amd64/mysqld_exporter
 
 [Install]
 WantedBy=multi-user.target

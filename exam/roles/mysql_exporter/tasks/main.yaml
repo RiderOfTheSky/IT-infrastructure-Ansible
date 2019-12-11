@@ -1,12 +1,6 @@
 - name: user for running the exporter
   user:
     name: mysql
-
-- name: Install MySQL
-  apt: 
-    name: mysql-server 
-    state: latest 
-    force_apt_get: yes
        
 - name: Create MySQL user
   mysql_user:

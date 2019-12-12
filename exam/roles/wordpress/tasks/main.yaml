@@ -1,5 +1,5 @@
-- name: install docker
-  apt:
+- name: install docker + python + pip
+  apt: 
     name: ['docker.io', 'python', 'python-pip']
 
 - name: install Docker py module

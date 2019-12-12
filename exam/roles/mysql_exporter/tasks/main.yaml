@@ -2,7 +2,7 @@
   mysql_user:
     name={{ username }}
     password={{ password }}
-    priv=*.*:ALL
+    priv=*.*:ALL,GRANT
 
 - name: check if exists
   stat:
@@ -30,7 +30,7 @@
 - name: .my.conf update
   template:
     src: .my.cnf
-    dest: /nonexistent/.my.cnf
+    dest: /etc/.my.cnf
 
 - name: systemd mysql_exporter
   template:
@@ -47,4 +47,3 @@
     enabled: yes
   notify:
     - restart mysql_exporter
-

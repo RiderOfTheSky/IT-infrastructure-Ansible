@@ -1,17 +1,56 @@
+- name: Specify MySQL root pass
+  debconf:
+    name: 'mysql-server'
+    question: 'mysql-server/root_password'
+    value: '{{ password  | quote }}'
+    vtype: 'password'
+
+- name: Confirm MySQL root pass
+  debconf:
+    name: 'mysql-server'
+    question: 'mysql-server/root_password_again'
+    value: '{{ password  | quote }}'
+    vtype: 'password'
+
+- name: Install MySQL python module
+  apt: 
+    name: python-pymysql
+    state: latest 
+    force_apt_get: yes
+
 - name: install all needed stuff
   apt:
-    name: ['python', 'python-pip', 'python-pymysql']
+    name: ['python', 'python-pip', 'python-mysqldb']
     state: latest
 
-- name: Install MySQL
+- name: Install MySQL server
   apt: 
     name: mysql-server 
     state: latest 
     force_apt_get: yes
 
+- name: update .my.cnf
+  template:
+    src: .my.cnf
+    dest: ~/.my.cnf
+
+#- name: okey boomer
+#  shell: mysql -u root -p"{{ password }}" -h localhost
+
+#- name: update root password
+#  mysql_user:
+#    name: root
+ #   password: "{{ password }}"
+  #  login_user: root
+   # login_password: "{{ password }}"
+   # host: "localhost"
+    #priv: '*.*:ALL,GRANT'
+
 - name: create MySQL DB
   mysql_db:
     name: "{{ db_name }}"
+    login_user: "root"
+    login_password: "{{ password }}"
     state: present
 
 - name: Create MySQL user

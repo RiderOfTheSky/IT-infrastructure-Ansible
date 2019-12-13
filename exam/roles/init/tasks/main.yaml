@@ -22,7 +22,7 @@
   notify:
     - netplan apply
    
-- name: add public ssh key to VM1
+- name: add public ssh key
   become: yes
   copy:
     src: /home/riderofthesky/.ssh/id_rsa.pub
@@ -34,13 +34,13 @@
     path: ~/.ssh
     mode: '1700'
 
-- name: add public ssh key to backup user
+- name: add public ssh key to user
   become: yes
   copy:
     src: /home/riderofthesky/.ssh/id_rsa.pub
     dest: /home/{{ user.stdout }}/.ssh/id_rsa.pub
   
-- name: change rights of the /home/backup/.ssh
+- name: change rights of the user directory
   become: yes
   file:
     path: /home/{{user.stdout}}/.ssh

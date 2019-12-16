@@ -1,21 +1,6 @@
 - name: install some additional soft
   apt:
-    package: ['adduser', 'libfontconfig']
-
-- name: install docker
-  apt:
-    name: docker.io
-    state: latest
-
-- name: install python
-  apt:
-    name: python
-    state: latest
-
-- name: install pip
-  apt:
-    name: python-pip
-    state: latest
+    package: ['docker.io', 'python', 'python-pip']
 
 - name: install Docker py module
   pip:
@@ -27,4 +12,8 @@
     image: grafana/grafana
     
 - name: start container with grafana
-  shell: docker run -p3000:3000 -d grafana/grafana
+  docker_container:
+    name: grafana
+    image: grafana/grafana
+    published_ports:
+      - "3000:3000"

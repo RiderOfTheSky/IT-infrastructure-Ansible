@@ -5,16 +5,12 @@
 - name: install Docker py module
   pip:
     name: docker
-
-- name: create wp container
+    
+- name: launch wp container
   docker_container:
     name: wp
     image: wordpress
-
-- name: create wp container
-  docker_container:
-    name: wp
-    image: wordpress
+    restart_policy: always
     published_ports:
       - "8080:80"
       

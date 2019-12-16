@@ -11,10 +11,12 @@
     name: wp
     image: wordpress
 
-- name: stop container
-  docker_container: 
+- name: create wp container
+  docker_container:
     name: wp
-    state: stopped
-
-- name: command
-  shell: docker run -e WORDPRESS_DB_HOST=192.168.56.102:3306 -e WORDPRESS_DB_USER={{username}} -e WORDPRESS_DB_PASSWORD={{password}} -p8080:80 -d wordpress
+    image: wordpress
+    published_ports:
+      - "8080:80"
+      
+#- name: command
+#  shell: docker run -e WORDPRESS_DB_HOST=192.168.56.102:3306 -e WORDPRESS_DB_USER={{username}} -e WORDPRESS_DB_PASSWORD={{password}} -p8080:80 -d wordpress

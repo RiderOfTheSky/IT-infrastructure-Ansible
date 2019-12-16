@@ -2,14 +2,14 @@
   debconf:
     name: 'mysql-server'
     question: 'mysql-server/root_password'
-    value: '{{ password  | quote }}'
+    value: '{{ root_password  | quote }}'
     vtype: 'password'
 
 - name: Confirm MySQL root pass
   debconf:
     name: 'mysql-server'
     question: 'mysql-server/root_password_again'
-    value: '{{ password  | quote }}'
+    value: '{{ root_password  | quote }}'
     vtype: 'password'
 
 - name: Install MySQL python module
@@ -34,40 +34,21 @@
     src: .my.cnf
     dest: ~/.my.cnf
 
-#- name: okey boomer
-#  shell: mysql -u root -p"{{ password }}" -h localhost
-
-#- name: update root password
-#  mysql_user:
-#    name: root
- #   password: "{{ password }}"
-  #  login_user: root
-   # login_password: "{{ password }}"
-   # host: "localhost"
-    #priv: '*.*:ALL,GRANT'
-
 - name: create MySQL DB
   mysql_db:
     name: "{{ db_name }}"
     login_user: "root"
-    login_password: "{{ password }}"
+    login_password: "{{ root_password }}"
     state: present
 
 - name: Create MySQL user
   mysql_user:
     name: "{{ username }}"
     password: "{{ password }}"
-    priv: 'wordpress.*:ALL,GRANT'
-
-- name: Create MySQL user for remote access
-  mysql_user:
-    name: "{{ username }}"
-    password: "{{ password }}"
-    priv: 'wordpress.*:ALL,GRANT'
+    priv: 'wordpress.*:ALL'
     host: "%"
 
 - name: allow remote access to MySQL db
-  replace: 
-    path: /etc/mysql/mysql.conf.d/mysqld.cnf 
-    regexp: 'bind-address		= 127.0.0.1'
-    replace: 'bind-address		= 0.0.0.0'
+  template:
+    src: mysqld.cnf
+    dest: /etc/mysql/mysql.conf.d/mysqld.cnf 
